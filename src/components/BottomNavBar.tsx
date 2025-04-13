@@ -3,30 +3,13 @@ import React from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, Clock, MapPin, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 const BottomNavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
   const handleNavigation = (path: string) => {
-    if (path === '/profile') {
-      navigate(path);
-    } else if (path === '/history' || path === '/saved') {
-      // Redirect to home with the correct tab active
-      const tabName = path === '/history' ? 'history' : 'home';
-      navigate('/home', { state: { defaultTab: tabName } });
-      
-      // Trigger tab click after navigation
-      setTimeout(() => {
-        const tabId = path === '/history' ? 'history' : 'home';
-        document.querySelector(`[value="${tabId}"]`)?.dispatchEvent(
-          new MouseEvent('click', { bubbles: true })
-        );
-      }, 50);
-    } else {
-      navigate(path);
-    }
+    navigate(path);
   };
   
   const navItems = [
@@ -41,9 +24,9 @@ const BottomNavBar = () => {
       {navItems.map((item) => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path || 
-                         (location.pathname === '/home' && 
-                          ((item.path === '/history' && location.state?.defaultTab === 'history') || 
-                           (item.path === '/saved' && location.state?.defaultTab === 'home')));
+                         (location.pathname === '/home' && item.path === '/home') ||
+                         (location.pathname === '/history' && item.path === '/history') ||
+                         (location.pathname === '/saved' && item.path === '/saved');
         
         return (
           <button
