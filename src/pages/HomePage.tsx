@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,7 +21,7 @@ const HomePage = () => {
   const [dropoff, setDropoff] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
   const [totalData, setTotalData] = useState(500); // 500 MB data balance
-  const [usedData, setUsedData] = useState(125); // 125 MB used
+  const [usedData, setUsedData] = useState(0); // Starting from 0 MB used
   
   // Saved addresses state
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -112,23 +111,11 @@ const HomePage = () => {
   
   return (
     <div className="min-h-screen flex flex-col bg-disconnected-dark pb-16">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-disconnected-dark/80 backdrop-blur-sm border-b border-border p-4">
-        <div className="flex justify-between items-center">
-          <Logo variant="full" />
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="text-muted-foreground hover:text-white"
-            onClick={() => toast.info("Profile coming soon")}
-          >
-            <User className="h-5 w-5" />
-          </Button>
-        </div>
-      </header>
-      
       {/* Main content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto pt-4">
+        <div className="px-4 mb-4 flex justify-center">
+          <Logo variant="full" />
+        </div>
         <Tabs defaultValue="ride" className="w-full">
           <TabsList className="w-full grid grid-cols-3 gap-2 bg-muted/50 p-1">
             <TabsTrigger 
@@ -163,12 +150,14 @@ const HomePage = () => {
                   <LocationInput 
                     type="pickup" 
                     value={pickup} 
-                    onChange={setPickup} 
+                    onChange={setPickup}
+                    withSuggestions
                   />
                   <LocationInput 
                     type="dropoff" 
                     value={dropoff} 
-                    onChange={setDropoff} 
+                    onChange={setDropoff}
+                    withSuggestions
                   />
                 </div>
                 

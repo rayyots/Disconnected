@@ -3,10 +3,31 @@ import React from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, Clock, MapPin, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const BottomNavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  const handleNavigation = (path: string) => {
+    if (path === '/profile') {
+      navigate(path);
+    } else if (path === '/history' || path === '/saved') {
+      // Redirect to home with the correct tab active
+      const tabName = path === '/history' ? 'history' : 'home';
+      navigate('/home', { state: { defaultTab: tabName } });
+      
+      // Trigger tab click after navigation
+      setTimeout(() => {
+        const tabId = path === '/history' ? 'history' : 'home';
+        document.querySelector(`[value="${tabId}"]`)?.dispatchEvent(
+          new MouseEvent('click', { bubbles: true })
+        );
+      }, 50);
+    } else {
+      navigate(path);
+    }
+  };
   
   const navItems = [
     { icon: Home, label: 'Home', path: '/home' },
@@ -19,7 +40,10 @@ const BottomNavBar = () => {
     <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center p-2 bg-disconnected-dark/95 backdrop-blur-sm border-t border-border">
       {navItems.map((item) => {
         const Icon = item.icon;
-        const isActive = location.pathname === item.path;
+        const isActive = location.pathname === item.path || 
+                         (location.pathname === '/home' && 
+                          ((item.path === '/history' && location.state?.defaultTab === 'history') || 
+                           (item.path === '/saved' && location.state?.defaultTab === 'home')));
         
         return (
           <button
@@ -28,7 +52,7 @@ const BottomNavBar = () => {
               "flex flex-col items-center justify-center w-16 py-1 rounded-lg transition-colors",
               isActive ? "text-disconnected-light" : "text-muted-foreground hover:text-white"
             )}
-            onClick={() => navigate(item.path)}
+            onClick={() => handleNavigation(item.path)}
           >
             <Icon className={cn("h-5 w-5 mb-1", isActive && "text-disconnected-light")} />
             <span className="text-xs">{item.label}</span>
