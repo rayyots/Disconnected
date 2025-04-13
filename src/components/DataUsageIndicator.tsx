@@ -16,7 +16,7 @@ const DataUsageIndicator = ({ totalData, usedData, className = '' }: DataUsageIn
   const isLow = percentUsed > 75;
   
   return (
-    <div className={`flex flex-col ${className}`}>
+    <div className={cn("flex flex-col", className)}>
       <div className="flex justify-between items-center mb-1">
         <div className="flex items-center gap-2 text-sm">
           <Wifi className="h-4 w-4 text-disconnected-light animate-pulse-light" />
@@ -26,7 +26,10 @@ const DataUsageIndicator = ({ totalData, usedData, className = '' }: DataUsageIn
       </div>
       <Progress 
         value={percentUsed} 
-        className={cn("h-2 bg-muted", isLow ? "bg-red-500/20" : "bg-disconnected-light/20")}
+        className={cn(
+          "h-2", 
+          isLow ? "bg-red-500/20" : "bg-disconnected-light/20"
+        )}
       />
       <div className="flex justify-between text-xs text-muted-foreground mt-1">
         <span>Used: {usedData.toFixed(1)} MB</span>
