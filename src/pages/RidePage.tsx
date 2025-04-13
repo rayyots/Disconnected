@@ -16,7 +16,7 @@ const RidePage = () => {
   const { pickup, dropoff, paymentMethod, totalData, usedData: initialUsedData } = location.state || {};
   
   const [status, setStatus] = useState<'searching' | 'matched' | 'arriving' | 'inProgress' | 'completed'>('searching');
-  const [usedData, setUsedData] = useState(initialUsedData || 125);
+  const [usedData, setUsedData] = useState(initialUsedData || 0);
   const [dataUsedDuringRide, setDataUsedDuringRide] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   
@@ -33,8 +33,8 @@ const RidePage = () => {
   const ride = {
     pickupLocation: pickup || "123 Main St",
     dropoffLocation: dropoff || "456 Market St",
-    distance: 3.5,
-    duration: 12,
+    distance: 3.9,
+    duration: 15,
     baseFare: 8.50,
     dataUsed: dataUsedDuringRide,
     dataCost: dataUsedDuringRide * 0.01, // $0.01 per MB
@@ -105,7 +105,7 @@ const RidePage = () => {
   useEffect(() => {
     if (status === 'inProgress') {
       const interval = setInterval(() => {
-        setUsedData(prev => prev + 0.2);
+        setUsedData(prev => prev + 0.4);
         setDataUsedDuringRide(prev => prev + 0.2);
       }, 5000); // Use 0.2 MB every 5 seconds during ride
       

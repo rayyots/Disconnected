@@ -74,15 +74,15 @@ const ProfilePage = () => {
               <div className="flex items-center space-x-4">
                 <Avatar className="h-16 w-16 border-2 border-white">
                   <AvatarImage src="" alt="Profile" />
-                  <AvatarFallback className="bg-disconnected-dark/50 text-white text-xl">JD</AvatarFallback>
+                  <AvatarFallback className="bg-disconnected-dark/50 text-white text-xl">OR</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h2 className="text-xl font-bold text-white">John Doe</h2>
-                  <p className="text-white/80">john.doe@example.com</p>
+                  <h2 className="text-xl font-bold text-white">Omar Rayyan</h2>
+                  <p className="text-white/80">OmarRayyan@gmail.com</p>
                   <div className="flex items-center mt-1">
-                    <p className="text-xs bg-white/20 px-2 py-0.5 rounded-full text-white">⭐ 4.9 Rating</p>
+                    <p className="text-xs bg-white/20 px-2 py-0.5 rounded-full text-white">⭐ 4.94 Rating</p>
                     <span className="mx-2 text-white/50">•</span>
-                    <p className="text-xs text-white/90">Member since 2023</p>
+                    <p className="text-xs text-white/90">Member since 2025</p>
                   </div>
                 </div>
               </div>

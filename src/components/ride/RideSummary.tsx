@@ -62,20 +62,20 @@ const RideSummary = ({ ride, onConfirm }: RideSummaryProps) => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Ride fare</span>
-              <span>${ride.baseFare.toFixed(2)}</span>
+              <span>EGP {ride.baseFare.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <div className="flex items-center">
                 <Wifi className="h-4 w-4 mr-1 text-disconnected-light" />
                 <span className="text-muted-foreground">Data used ({ride.dataUsed.toFixed(1)} MB)</span>
               </div>
-              <span>${ride.dataCost.toFixed(2)}</span>
+              <span>EGP {ride.dataCost.toFixed(2)}</span>
             </div>
           </div>
           
           <div className="flex justify-between font-medium">
             <span>Total</span>
-            <span>${ride.totalCost.toFixed(2)}</span>
+            <span>EGP {ride.totalCost.toFixed(2)}</span>
           </div>
           
           <div className="flex items-center">

@@ -70,9 +70,9 @@ const MapPlaceholder = ({
       {renderMapFeatures()}
       
       <div className="absolute bottom-2 right-2 bg-black/50 px-2 py-1 rounded text-xs text-white">
-        <p className="text-muted-foreground">
+        {/* <p className="text-muted-foreground">
           Map simulation
-        </p>
+        </p> */}
       </div>
     </div>
   );
