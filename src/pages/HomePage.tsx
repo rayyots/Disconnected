@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { History, Home, User, CarTaxi } from "lucide-react";
+import { History, Home, User, Car } from "lucide-react";
 import Logo from "@/components/Logo";
 import MapPlaceholder from "@/components/MapPlaceholder";
 import LocationInput from "@/components/ride/LocationInput";
@@ -74,7 +74,7 @@ const HomePage = () => {
         <Tabs defaultValue="ride" className="w-full">
           <TabsList className="w-full grid grid-cols-3 gap-2 bg-muted/50 p-1">
             <TabsTrigger value="ride" className="data-[state=active]:bg-disconnected-light data-[state=active]:text-disconnected-dark">
-              <CarTaxi className="h-4 w-4 mr-2" />
+              <Car className="h-4 w-4 mr-2" />
               Ride
             </TabsTrigger>
             <TabsTrigger value="history" className="data-[state=active]:bg-disconnected-light data-[state=active]:text-disconnected-dark">

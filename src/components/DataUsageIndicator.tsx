@@ -2,6 +2,7 @@
 import React from 'react';
 import { Progress } from "@/components/ui/progress";
 import { Wifi } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DataUsageIndicatorProps {
   totalData: number;
@@ -12,6 +13,7 @@ interface DataUsageIndicatorProps {
 const DataUsageIndicator = ({ totalData, usedData, className = '' }: DataUsageIndicatorProps) => {
   const percentUsed = Math.min((usedData / totalData) * 100, 100);
   const remaining = Math.max(totalData - usedData, 0);
+  const isLow = percentUsed > 75;
   
   return (
     <div className={`flex flex-col ${className}`}>
@@ -24,8 +26,7 @@ const DataUsageIndicator = ({ totalData, usedData, className = '' }: DataUsageIn
       </div>
       <Progress 
         value={percentUsed} 
-        className="h-2 bg-muted" 
-        indicatorClassName={`${percentUsed > 75 ? 'bg-red-500' : 'bg-disconnected-light'}`}
+        className={cn("h-2 bg-muted", isLow ? "bg-red-500/20" : "bg-disconnected-light/20")}
       />
       <div className="flex justify-between text-xs text-muted-foreground mt-1">
         <span>Used: {usedData.toFixed(1)} MB</span>
