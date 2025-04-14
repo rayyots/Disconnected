@@ -2,19 +2,13 @@
 import React from 'react';
 import { Wifi } from "lucide-react";
 import DriverCard from "@/components/ride/DriverCard";
+import { Driver } from '@/firebase/drivers';
 
 interface RideInProgressProps {
   elapsedTime: number;
   dataUsedDuringRide: number;
   dropoffLocation: string;
-  driver: {
-    id: string;
-    name: string;
-    rating: number;
-    carModel: string;
-    licensePlate: string;
-    avatarUrl?: string;
-  };
+  driver: Driver;
 }
 
 const RideInProgress = ({ 
