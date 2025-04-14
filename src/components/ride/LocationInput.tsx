@@ -10,6 +10,8 @@ interface LocationInputProps {
   onChange: (value: string) => void;
   onFocus?: () => void;
   withSuggestions?: boolean;
+  suggestions?: any[];
+  onSelectSuggestion?: (address: string) => void;
 }
 
 // Mock location data for suggestions
@@ -31,24 +33,37 @@ const MOCK_LOCATIONS = [
   "Waterfront Plaza"
 ];
 
-const LocationInput = ({ type, value, onChange, onFocus, withSuggestions = false }: LocationInputProps) => {
+const LocationInput = ({ 
+  type, 
+  value, 
+  onChange, 
+  onFocus, 
+  withSuggestions = false,
+  suggestions,
+  onSelectSuggestion
+}: LocationInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [internalSuggestions, setInternalSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   
   useEffect(() => {
     if (withSuggestions && value.length > 0) {
-      // Filter locations that match the input
-      const filtered = MOCK_LOCATIONS.filter(loc => 
-        loc.toLowerCase().includes(value.toLowerCase())
-      ).slice(0, 4); // Limit to 4 suggestions
-      
-      setSuggestions(filtered);
-      setShowSuggestions(filtered.length > 0 && isFocused);
+      if (suggestions) {
+        // Use external suggestions if provided
+        setShowSuggestions(suggestions.length > 0 && isFocused);
+      } else {
+        // Filter locations that match the input
+        const filtered = MOCK_LOCATIONS.filter(loc => 
+          loc.toLowerCase().includes(value.toLowerCase())
+        ).slice(0, 4); // Limit to 4 suggestions
+        
+        setInternalSuggestions(filtered);
+        setShowSuggestions(filtered.length > 0 && isFocused);
+      }
     } else {
       setShowSuggestions(false);
     }
-  }, [value, isFocused, withSuggestions]);
+  }, [value, isFocused, withSuggestions, suggestions]);
   
   const handleFocus = () => {
     setIsFocused(true);
@@ -70,7 +85,13 @@ const LocationInput = ({ type, value, onChange, onFocus, withSuggestions = false
   const selectSuggestion = (suggestion: string) => {
     onChange(suggestion);
     setShowSuggestions(false);
+    if (onSelectSuggestion) {
+      onSelectSuggestion(suggestion);
+    }
   };
+  
+  // Determine which suggestions to display
+  const displaySuggestions = suggestions || internalSuggestions;
   
   return (
     <div className="relative">
@@ -100,19 +121,22 @@ const LocationInput = ({ type, value, onChange, onFocus, withSuggestions = false
         )}
       </div>
       
-      {showSuggestions && suggestions.length > 0 && (
+      {showSuggestions && displaySuggestions.length > 0 && (
         <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-muted shadow-lg">
           <ul className="py-1">
-            {suggestions.map((suggestion, index) => (
-              <li 
-                key={index}
-                className="px-4 py-2 text-sm cursor-pointer hover:bg-disconnected-light/10 flex items-center"
-                onClick={() => selectSuggestion(suggestion)}
-              >
-                <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                {suggestion}
-              </li>
-            ))}
+            {displaySuggestions.map((suggestion, index) => {
+              const suggestionText = typeof suggestion === 'string' ? suggestion : suggestion.address;
+              return (
+                <li 
+                  key={index}
+                  className="px-4 py-2 text-sm cursor-pointer hover:bg-disconnected-light/10 flex items-center"
+                  onClick={() => selectSuggestion(suggestionText)}
+                >
+                  <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                  {suggestionText}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
