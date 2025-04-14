@@ -56,15 +56,6 @@ export default {
 				disconnected: {
 					dark: '#1A252F',
 					light: '#00C4CC',
-				},
-				theme: {
-					light: {
-						background: '#FFFFFF',
-						card: '#F1F0FB',
-						primary: '#00A3B4',
-						accent: '#FEC6A1',
-						muted: '#F2FCE2',
-					}
 				}
 			},
 			borderRadius: {

@@ -14,7 +14,6 @@ import RidePage from "./pages/RidePage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 import { checkAndSeedData } from "./firebase/seedData";
-import { ThemeProvider } from "./contexts/ThemeContext";
 
 const queryClient = new QueryClient();
 
@@ -64,44 +63,42 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner position="top-right" />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<SplashPage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/home" element={
-                <ProtectedRoute>
-                  <HomePage />
-                </ProtectedRoute>
-              } />
-              <Route path="/ride" element={
-                <ProtectedRoute>
-                  <RidePage />
-                </ProtectedRoute>
-              } />
-              <Route path="/history" element={
-                <ProtectedRoute>
-                  <HistoryPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/saved" element={
-                <ProtectedRoute>
-                  <SavedPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <ProfilePage />
-                </ProtectedRoute>
-              } />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner position="top-right" />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<SplashPage />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/home" element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/ride" element={
+              <ProtectedRoute>
+                <RidePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/history" element={
+              <ProtectedRoute>
+                <HistoryPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/saved" element={
+              <ProtectedRoute>
+                <SavedPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };
