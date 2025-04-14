@@ -7,14 +7,14 @@ import Logo from "@/components/Logo";
 import { toast } from "sonner";
 
 interface RideHeaderProps {
-  status: 'searching' | 'selectingDriver' | 'matched' | 'arriving' | 'inProgress' | 'completed';
+  status: 'searching' | 'matched' | 'arriving' | 'inProgress' | 'completed';
 }
 
 const RideHeader = ({ status }: RideHeaderProps) => {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    if (status === 'searching' || status === 'selectingDriver') {
+    if (status === 'searching') {
       navigate('/home');
     } else {
       toast.error("Cannot cancel ride in progress");

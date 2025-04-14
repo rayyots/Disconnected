@@ -4,10 +4,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Phone, MessageCircle, Car, Star } from "lucide-react";
-import { Driver } from '@/firebase/drivers';
 
 interface DriverCardProps {
-  driver: Driver;
+  driver: {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+    rating: number;
+    carModel: string;
+    licensePlate: string;
+  };
 }
 
 const DriverCard = ({ driver }: DriverCardProps) => {
@@ -16,7 +22,7 @@ const DriverCard = ({ driver }: DriverCardProps) => {
       <CardContent className="p-4">
         <div className="flex items-center">
           <Avatar className="h-12 w-12 border-2 border-disconnected-light">
-            <AvatarImage src={driver.avatar} alt={driver.name} />
+            <AvatarImage src={driver.avatarUrl} alt={driver.name} />
             <AvatarFallback className="bg-muted">{driver.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="ml-4 flex-1">
