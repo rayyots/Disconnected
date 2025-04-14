@@ -1,6 +1,6 @@
 
 import { db } from "./config";
-import { collection, query, getDocs, doc, getDoc, updateDoc, where, limit as firestoreLimit } from "firebase/firestore";
+import { collection, query, getDocs, doc, getDoc, updateDoc, where, limit, QueryConstraint } from "firebase/firestore";
 
 // Interface for Driver data
 export interface Driver {
@@ -28,12 +28,15 @@ export const getAvailableDrivers = async (
     // In a real app, we would filter by location proximity
     // For this demo, we'll just get the first 5 available drivers
     const driversRef = collection(db, "drivers");
-    const q = query(
-      driversRef,
+    
+    // Create an array of query constraints
+    const constraints: QueryConstraint[] = [
       where("status", "==", "available"),
       where("available", "==", true),
-      firestoreLimit(limitCount)
-    );
+      limit(limitCount)
+    ];
+    
+    const q = query(driversRef, ...constraints);
     
     const querySnapshot = await getDocs(q);
     const drivers: Driver[] = [];
