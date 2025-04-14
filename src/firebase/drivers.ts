@@ -1,6 +1,6 @@
 
 import { db } from "./config";
-import { collection, query, getDocs, doc, getDoc, updateDoc, where, limit } from "firebase/firestore";
+import { collection, query, getDocs, doc, getDoc, updateDoc, where, limit as firestoreLimit } from "firebase/firestore";
 
 // Interface for Driver data
 export interface Driver {
@@ -22,7 +22,7 @@ export interface Driver {
 // Fetch available drivers near a location
 export const getAvailableDrivers = async (
   pickupLocation: string,
-  limit: number = 5
+  limitCount: number = 5
 ): Promise<Driver[]> => {
   try {
     // In a real app, we would filter by location proximity
@@ -32,7 +32,7 @@ export const getAvailableDrivers = async (
       driversRef,
       where("status", "==", "available"),
       where("available", "==", true),
-      limit
+      firestoreLimit(limitCount)
     );
     
     const querySnapshot = await getDocs(q);
