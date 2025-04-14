@@ -12,6 +12,9 @@ import PaymentMethodSelector from "@/components/ride/PaymentMethodSelector";
 import DataUsageIndicator from "@/components/DataUsageIndicator";
 import BottomNavBar from "@/components/BottomNavBar";
 import { SavedAddress } from "@/components/address/SavedAddressForm";
+import { db } from "@/firebase/config";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { updateUserDataUsage } from "@/firebase/rides";
 
 // Mock location suggestions based on input
 const getLocationSuggestions = (input: string) => {
@@ -41,11 +44,13 @@ const HomePage = () => {
   const [pickupSuggestions, setPickupSuggestions] = useState<any[]>([]);
   const [dropoffSuggestions, setDropoffSuggestions] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   
-  // Check authentication
+  // Check authentication and get user data
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated');
     const userData = localStorage.getItem('user');
+    const userIdFromStorage = localStorage.getItem('userId');
     
     if (!isAuthenticated || !userData) {
       navigate('/auth');
@@ -53,7 +58,13 @@ const HomePage = () => {
     }
     
     try {
-      setUser(JSON.parse(userData));
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      setUsedData(parsedUser.dataUsed || 0);
+      
+      if (userIdFromStorage) {
+        setUserId(userIdFromStorage);
+      }
     } catch (e) {
       console.error("Error parsing user data", e);
       navigate('/auth');
@@ -100,19 +111,34 @@ const HomePage = () => {
     });
   };
   
-  // Simulate data usage
+  // Simulate data usage - start from the moment the app loads
   useEffect(() => {
-    const interval = setInterval(() => {
+    if (!userId) return;
+    
+    const interval = setInterval(async () => {
+      const dataIncrement = 0.5; // 0.5 MB every 30 seconds
+      
       setUsedData(prev => {
-        if (prev < totalData) {
-          return prev + 0.5;
+        const newValue = prev + dataIncrement;
+        
+        // Update user data in Firebase and local storage
+        if (userId) {
+          updateUserDataUsage(userId, dataIncrement);
+          
+          // Update local user object
+          if (user) {
+            const updatedUser = { ...user, dataUsed: newValue };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+          }
         }
-        return prev;
+        
+        return newValue;
       });
-    }, 30000); // Use 0.5 MB every 30 seconds
+    }, 30000);
     
     return () => clearInterval(interval);
-  }, [totalData]);
+  }, [userId, user, totalData]);
   
   const handleSelectSuggestion = (type: 'pickup' | 'dropoff', address: string) => {
     if (type === 'pickup') {
@@ -161,7 +187,7 @@ const HomePage = () => {
                   type="pickup" 
                   value={pickup} 
                   onChange={setPickup}
-                  withSuggestions
+                  withSuggestions={true}
                   suggestions={pickupSuggestions}
                   onSelectSuggestion={(address) => handleSelectSuggestion('pickup', address)}
                 />
@@ -169,7 +195,7 @@ const HomePage = () => {
                   type="dropoff" 
                   value={dropoff} 
                   onChange={setDropoff}
-                  withSuggestions
+                  withSuggestions={true}
                   suggestions={dropoffSuggestions}
                   onSelectSuggestion={(address) => handleSelectSuggestion('dropoff', address)}
                 />
