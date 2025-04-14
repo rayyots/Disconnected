@@ -23,22 +23,22 @@ const RidePage = () => {
   // Mock driver data
   const driver = {
     id: "driver-123",
-    name: "James Wilson",
+    name: "Mohamed Salah",
     rating: 4.8,
-    carModel: "Toyota Camry",
-    licensePlate: "XYZ 123",
+    carModel: "Nissan Sunny",
+    licensePlate: "ا ج ط 481",
   };
   
   // Mock ride data
   const ride = {
     pickupLocation: pickup || "123 Main St",
     dropoffLocation: dropoff || "456 Market St",
-    distance: 3.9,
+    distance: 5.3,
     duration: 15,
-    baseFare: 8.50,
+    baseFare: 25,
     dataUsed: dataUsedDuringRide,
-    dataCost: dataUsedDuringRide * 0.01, // $0.01 per MB
-    totalCost: 8.50 + (dataUsedDuringRide * 0.01),
+    dataCost: dataUsedDuringRide, 
+    totalCost: 25 + (dataUsedDuringRide * 0.1),
     paymentMethod: paymentMethod || 'cash',
   };
   
@@ -84,7 +84,7 @@ const RidePage = () => {
       const timeout = setTimeout(() => {
         setStatus('completed');
         toast.success("You've arrived at your destination!");
-      }, 10000);
+      }, 15000);
       
       return () => clearTimeout(timeout);
     }
@@ -105,9 +105,9 @@ const RidePage = () => {
   useEffect(() => {
     if (status === 'inProgress') {
       const interval = setInterval(() => {
-        setUsedData(prev => prev + 0.4);
-        setDataUsedDuringRide(prev => prev + 0.2);
-      }, 5000); // Use 0.2 MB every 5 seconds during ride
+        setUsedData(prev => prev + 0.2);
+        setDataUsedDuringRide(prev => prev + 0.8);
+      }, 5000); // Use 0.8 MB every 5 seconds during ride
       
       return () => clearInterval(interval);
     }
@@ -156,8 +156,8 @@ const RidePage = () => {
             ride={{
               ...ride,
               dataUsed: dataUsedDuringRide,
-              dataCost: dataUsedDuringRide * 0.01,
-              totalCost: ride.baseFare + (dataUsedDuringRide * 0.01)
+              dataCost: dataUsedDuringRide * 0.1,
+              totalCost: ride.baseFare + (dataUsedDuringRide * 0.1)
             }} 
             onConfirm={handleConfirmPayment} 
           />

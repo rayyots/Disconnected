@@ -14,21 +14,18 @@ interface LocationInputProps {
 
 // Mock location data for suggestions
 const MOCK_LOCATIONS = [
-  "123 Main Street",
-  "456 Oak Avenue",
-  "789 Pine Boulevard",
-  "321 Maple Road",
-  "654 Cedar Lane",
-  "987 Elm Drive",
+  "CFC Mall",
+  "ESLSCA University",
+  "Maadi Club",
+  "Cairo Opera House",
   "Downtown Mall",
-  "Central Park",
   "Airport Terminal",
   "Train Station",
   "City Hospital",
-  "University Campus",
-  "Shopping Center",
-  "Business District",
-  "Waterfront Plaza"
+  "Cairo University",
+  "Shopping Mall",
+  "Waterway",
+  "Home"
 ];
 
 const LocationInput = ({ type, value, onChange, onFocus, withSuggestions = false }: LocationInputProps) => {
