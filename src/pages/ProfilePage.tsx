@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,14 +14,37 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const [totalData, setTotalData] = useState(500);
   const [usedData, setUsedData] = useState(0);
+  const [user, setUser] = useState<any>(null);
+  
+  // Load user data
+  useEffect(() => {
+    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    const userData = localStorage.getItem('user');
+    
+    if (!isAuthenticated || !userData) {
+      navigate('/auth');
+      return;
+    }
+    
+    try {
+      setUser(JSON.parse(userData));
+    } catch (e) {
+      console.error("Error parsing user data", e);
+      navigate('/auth');
+    }
+  }, [navigate]);
   
   const handleBack = () => {
     navigate(-1);
   };
   
   const handleLogout = () => {
+    // Remove user data from localStorage
+    localStorage.removeItem('user');
+    localStorage.removeItem('isAuthenticated');
+    
     toast.success("Logged out successfully");
-    navigate('/');
+    navigate('/auth');
   };
   
   const profileSections = [
@@ -50,6 +73,17 @@ const ProfilePage = () => {
     }
   ];
   
+  // Show loading state while user data is being fetched
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-disconnected-dark">
+        <div className="animate-pulse">
+          <p className="text-disconnected-light">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen flex flex-col bg-disconnected-dark pb-16">
       <header className="sticky top-0 z-10 bg-disconnected-dark/80 backdrop-blur-sm border-b border-border p-4">
@@ -74,15 +108,17 @@ const ProfilePage = () => {
               <div className="flex items-center space-x-4">
                 <Avatar className="h-16 w-16 border-2 border-white">
                   <AvatarImage src="" alt="Profile" />
-                  <AvatarFallback className="bg-disconnected-dark/50 text-white text-xl">OR</AvatarFallback>
+                  <AvatarFallback className="bg-disconnected-dark/50 text-white text-xl">
+                    {user.name.split(' ').map((n: string) => n[0]).join('')}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h2 className="text-xl font-bold text-white">Omar Rayyan</h2>
-                  <p className="text-white/80">OmarRayyan@gmail.com</p>
+                  <h2 className="text-xl font-bold text-white">{user.name}</h2>
+                  <p className="text-white/80">{user.email}</p>
                   <div className="flex items-center mt-1">
-                    <p className="text-xs bg-white/20 px-2 py-0.5 rounded-full text-white">⭐ 4.94 Rating</p>
+                    <p className="text-xs bg-white/20 px-2 py-0.5 rounded-full text-white">⭐ {user.rating} Rating</p>
                     <span className="mx-2 text-white/50">•</span>
-                    <p className="text-xs text-white/90">Member since 2025</p>
+                    <p className="text-xs text-white/90">Member since {user.memberSince}</p>
                   </div>
                 </div>
               </div>
