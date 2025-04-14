@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Clock } from "lucide-react";
-import { verifyCode, sendVerificationCode } from "@/firebase/auth";
 
 interface OtpVerificationFormProps {
   phoneNumber: string;
@@ -49,14 +48,13 @@ const OtpVerificationForm = ({ phoneNumber, onVerify, onChangeNumber }: OtpVerif
 
   const formatPhoneNumber = (phone: string) => {
     // Format phone number for display
-    if (phone.startsWith('+1') && phone.length === 12) {
-      const digits = phone.substring(2);
-      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    if (phone.length === 10) {
+      return `(${phone.slice(0, 3)}) ${phone.slice(3, 6)}-${phone.slice(6)}`;
     }
     return phone;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!otp || otp.length < 6) {
@@ -70,71 +68,35 @@ const OtpVerificationForm = ({ phoneNumber, onVerify, onChangeNumber }: OtpVerif
     
     setIsLoading(true);
     
-    try {
-      const success = await verifyCode(otp);
-      
-      if (success) {
-        onVerify();
-      } else {
-        toast({
-          title: "Invalid Code",
-          description: "The verification code is invalid or has expired",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Error verifying code:", error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
+    // For demo, we'll accept any 6-digit code
+    setTimeout(() => {
+      onVerify();
       setIsLoading(false);
-    }
+    }, 1500);
   };
   
-  const handleResendCode = async () => {
+  const handleResendCode = () => {
     if (!canResend) return;
     
-    try {
-      const success = await sendVerificationCode(phoneNumber);
-      
-      if (success) {
-        toast({
-          title: "Code Resent",
-          description: "A new verification code has been sent to your phone",
-        });
-        
-        setCanResend(false);
-        setResendTimeout(60);
-        
-        // Restart the countdown
-        const interval = window.setInterval(() => {
-          setResendTimeout(prev => {
-            if (prev <= 1) {
-              setCanResend(true);
-              clearInterval(interval);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to resend verification code. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Error resending code:", error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
+    toast({
+      title: "Code Resent",
+      description: "A new verification code has been sent to your phone",
+    });
+    
+    setCanResend(false);
+    setResendTimeout(60);
+    
+    // Restart the countdown
+    const interval = window.setInterval(() => {
+      setResendTimeout(prev => {
+        if (prev <= 1) {
+          setCanResend(true);
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
       });
-    }
+    }, 1000);
   };
 
   return (

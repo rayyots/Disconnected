@@ -1,11 +1,10 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Phone } from "lucide-react";
-import { initRecaptcha, sendVerificationCode } from "@/firebase/auth";
 
 interface PhoneLoginFormProps {
   onSubmit: (phoneNumber: string) => void;
@@ -15,24 +14,8 @@ const PhoneLoginForm = ({ onSubmit }: PhoneLoginFormProps) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // Initialize reCAPTCHA when component mounts
-    if (recaptchaContainerRef.current) {
-      initRecaptcha('recaptcha-container');
-    }
-    
-    return () => {
-      // Clean up reCAPTCHA when component unmounts
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-        window.recaptchaVerifier = null;
-      }
-    };
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Improved phone validation - strip non-numeric characters first
@@ -49,33 +32,11 @@ const PhoneLoginForm = ({ onSubmit }: PhoneLoginFormProps) => {
     
     setIsLoading(true);
     
-    try {
-      // Send verification code
-      const formattedNumber = cleanedNumber.startsWith('1') 
-        ? `+${cleanedNumber}` 
-        : `+1${cleanedNumber}`;
-      
-      const success = await sendVerificationCode(formattedNumber);
-      
-      if (success) {
-        onSubmit(formattedNumber);
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to send verification code. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Error sending code:", error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
+    // Simulate API call
+    setTimeout(() => {
+      onSubmit(cleanedNumber);
       setIsLoading(false);
-    }
+    }, 1500);
   };
 
   const formatPhoneNumber = (value: string) => {
@@ -117,10 +78,6 @@ const PhoneLoginForm = ({ onSubmit }: PhoneLoginFormProps) => {
           We'll send a verification code to this number
         </p>
       </div>
-      
-      {/* Hidden reCAPTCHA container */}
-      <div id="recaptcha-container" ref={recaptchaContainerRef}></div>
-      
       <Button 
         type="submit" 
         className="w-full bg-disconnected-light text-disconnected-dark hover:bg-disconnected-light/90"

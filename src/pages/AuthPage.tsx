@@ -6,41 +6,34 @@ import Logo from "@/components/Logo";
 import PhoneLoginForm from "@/components/auth/PhoneLoginForm";
 import OtpVerificationForm from "@/components/auth/OtpVerificationForm";
 import { toast } from "sonner";
-import { checkAndSeedData } from "@/firebase/seedData";
+
+// Mock user data for Omar Rayyan
+const userProfile = {
+  id: "user_1",
+  name: "Omar Rayyan",
+  email: "OmarRayyan@gmail.com",
+  phoneNumber: "5551234567",
+  avatar: "",
+  rating: 4.94,
+  memberSince: "2025",
+  verifiedUser: true
+};
 
 const AuthPage = () => {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   
-  // Check if user is already logged in and seed database if needed
+  // Check if user is already logged in
   useEffect(() => {
-    const initializeApp = async () => {
-      setIsLoading(true);
-      
-      try {
-        // Seed Firebase with initial data if needed
-        await checkAndSeedData();
-        
-        // Check if user is logged in
-        const savedUser = localStorage.getItem('user');
-        if (savedUser) {
-          // Auto-login if user data exists
-          setTimeout(() => {
-            navigate('/home');
-            toast.success("Welcome back, Omar!");
-          }, 500);
-        } else {
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("Error initializing app:", error);
-        setIsLoading(false);
-      }
-    };
-    
-    initializeApp();
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      // Auto-login if user data exists
+      setTimeout(() => {
+        navigate('/home');
+        toast.success("Welcome back, Omar!");
+      }, 500);
+    }
   }, [navigate]);
 
   const handlePhoneSubmit = (phone: string) => {
@@ -49,22 +42,19 @@ const AuthPage = () => {
     toast.success("Verification code sent!");
     
     // For demo purposes, we'll just log the verification code to console
-    console.log("Verification code sent to", phone);
+    console.log("Verification code: 123456");
   };
 
   const handleVerification = () => {
+    // Store user profile in localStorage
+    localStorage.setItem('user', JSON.stringify(userProfile));
+    
+    // Set authentication flag
+    localStorage.setItem('isAuthenticated', 'true');
+    
     toast.success("Successfully logged in!");
     navigate('/home');
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col justify-center items-center p-4 bg-disconnected-dark">
-        <Logo variant="full" className="animate-pulse" />
-        <p className="text-disconnected-light mt-4">Loading...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center p-4 bg-disconnected-dark">
