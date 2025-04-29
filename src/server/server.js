@@ -86,6 +86,23 @@ app.post('/api/rides/complete', (req, res) => {
   }
 });
 
+// New endpoint to get ride history
+app.get('/api/rides/history', (req, res) => {
+  const { phoneNumber } = req.query;
+  
+  if (users[phoneNumber]) {
+    res.json({
+      success: true,
+      rides: users[phoneNumber].rides
+    });
+  } else {
+    res.status(404).json({
+      success: false,
+      error: 'User not found'
+    });
+  }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

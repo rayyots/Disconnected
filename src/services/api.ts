@@ -63,5 +63,10 @@ export async function completeRide(phoneNumber: string, ride: any) {
   return apiRequest('/rides/complete', 'POST', { phoneNumber, ride });
 }
 
+// New function to get ride history
+export async function getRideHistory(phoneNumber: string) {
+  return apiRequest('/rides/history', 'GET', { phoneNumber });
+}
+
 // Note: In a real application, we would add proper error handling,
 // retry logic, authentication tokens, etc.

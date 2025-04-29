@@ -21,12 +21,14 @@ const RidePage = () => {
     dataSimulationActive, 
     totalData, 
     usedData, 
-    incrementUsedData 
+    incrementUsedData,
+    setUsedData 
   } = useData();
   
   const [status, setStatus] = useState<'searching' | 'matched' | 'arriving' | 'inProgress' | 'completed'>('searching');
   const [dataUsedDuringRide, setDataUsedDuringRide] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [dataStopped, setDataStopped] = useState(false);
   
   // Mock driver data
   const driver = {
@@ -98,15 +100,24 @@ const RidePage = () => {
   
   // Simulate data usage during ride only if simulation is active
   useEffect(() => {
-    if (status === 'inProgress' && dataSimulationActive) {
+    if (status === 'inProgress' && dataSimulationActive && !dataStopped) {
       const interval = setInterval(() => {
+        const dataIncrement = 0.8; // Data usage per interval in MB
+        
+        // Check if adding this increment would exceed the total data
+        if (usedData + dataIncrement > totalData) {
+          toast.error("Data balance depleted! Conserving remaining data.");
+          setDataStopped(true);
+          return;
+        }
+        
         incrementUsedData(0.2);
-        setDataUsedDuringRide(prev => prev + 0.8);
+        setDataUsedDuringRide(prev => prev + dataIncrement);
       }, 5000); // Use 0.8 MB every 5 seconds during ride
       
       return () => clearInterval(interval);
     }
-  }, [status, dataSimulationActive, incrementUsedData]);
+  }, [status, dataSimulationActive, incrementUsedData, usedData, totalData, dataStopped]);
   
   const handleConfirmPayment = () => {
     toast.success("Payment successful!");
