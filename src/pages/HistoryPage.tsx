@@ -1,59 +1,36 @@
+
 import React, { useEffect, useState } from 'react';
 import { History, Clock, MapPin, Wifi } from "lucide-react";
 import BottomNavBar from "@/components/BottomNavBar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getRideHistory } from "@/services/api";
+import { getRideHistory, RideHistoryItem } from "@/services/api";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useData } from "@/context/DataContext";
-
-interface RideHistoryItem {
-  id: string;
-  pickupLocation: string;
-  dropoffLocation: string;
-  distance: number;
-  duration: number;
-  baseFare: number;
-  dataUsed: number;
-  dataCost: number;
-  totalCost: number;
-  paymentMethod: string;
-  date: string;
-}
+import { useQuery } from "@tanstack/react-query";
 
 const HistoryPage = () => {
-  const [rideHistory, setRideHistory] = useState<RideHistoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const { dataSimulationActive } = useData();
+  const phoneNumber = localStorage.getItem('phoneNumber') || '';
 
-  useEffect(() => {
-    const fetchRideHistory = async () => {
-      try {
-        // Get phone number from local storage
-        const phoneNumber = localStorage.getItem('phoneNumber');
-        if (!phoneNumber) {
-          setLoading(false);
-          return;
-        }
-
-        const response = await getRideHistory(phoneNumber);
-        if (response.success && response.data) {
-          // Fix the type error by properly casting the data
-          const rides = response.data.rides as RideHistoryItem[];
-          setRideHistory(rides || []);
-        }
-      } catch (error) {
-        console.error('Error fetching ride history:', error);
-        toast.error('Failed to load ride history');
-      } finally {
-        setLoading(false);
+  // Use react-query to fetch ride history
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['rideHistory', phoneNumber],
+    queryFn: async () => {
+      if (!phoneNumber) {
+        return { rides: [] };
       }
-    };
+      const response = await getRideHistory(phoneNumber);
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to load ride history');
+      }
+      return response.data;
+    },
+    enabled: !!phoneNumber, // Only run the query if we have a phone number
+  });
 
-    fetchRideHistory();
-  }, []);
+  const rideHistory = data?.rides || [];
 
   const formatDate = (dateString: string) => {
     try {
@@ -63,12 +40,19 @@ const HistoryPage = () => {
     }
   };
 
+  useEffect(() => {
+    if (error) {
+      toast.error('Failed to load ride history');
+      console.error('Error fetching ride history:', error);
+    }
+  }, [error]);
+
   return (
     <div className="min-h-screen flex flex-col bg-disconnected-dark pb-16">
       <main className="flex-1 overflow-auto pt-4 px-4">
         <h1 className="text-xl font-bold mb-4 text-center">Ride History</h1>
         
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center p-8">
             <div className="animate-pulse text-muted-foreground">Loading...</div>
           </div>
@@ -82,7 +66,7 @@ const HistoryPage = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {rideHistory.map((ride) => (
+            {rideHistory.map((ride: RideHistoryItem) => (
               <Card key={ride.id} className="glass-card overflow-hidden">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">

@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import SplashPage from "./pages/SplashPage";
 import AuthPage from "./pages/AuthPage";
 import DataSelectionPage from "./pages/DataSelectionPage";
@@ -19,8 +19,8 @@ import { DataProvider } from "./context/DataContext";
 // Create a new query client instance
 const queryClient = new QueryClient();
 
-const App = () => (
-  <React.StrictMode>
+const App = () => {
+  return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <TooltipProvider>
@@ -42,7 +42,7 @@ const App = () => (
         </TooltipProvider>
       </BrowserRouter>
     </QueryClientProvider>
-  </React.StrictMode>
-);
+  );
+};
 
 export default App;

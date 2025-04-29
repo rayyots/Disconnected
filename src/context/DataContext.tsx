@@ -1,6 +1,8 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
+import { getUserData, User } from '@/services/api';
+import { toast } from 'sonner';
 
 interface DataContextType {
   hasMobileData: boolean;
@@ -8,6 +10,7 @@ interface DataContextType {
   totalData: number;
   usedData: number;
   dataActivationTime: number | null;
+  userData: User | null;
   setHasMobileData: (value: boolean) => void;
   setDataSimulationActive: (value: boolean) => void;
   setTotalData: (value: number) => void;
@@ -25,6 +28,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [totalData, setTotalData] = useState<number>(500);
   const [usedData, setUsedData] = useState<number>(0);
   const [dataActivationTime, setDataActivationTime] = useState<number | null>(null);
+  const [userData, setUserData] = useState<User | null>(null);
 
   // Check for data status from navigation state
   useEffect(() => {
@@ -42,6 +46,26 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [location.state]);
 
+  // Fetch user data when context loads
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const phoneNumber = localStorage.getItem('phoneNumber');
+      if (phoneNumber) {
+        try {
+          const response = await getUserData(phoneNumber);
+          if (response.success && response.data?.user) {
+            setUserData(response.data.user);
+            setTotalData(response.data.user.dataBalance);
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   const resetUsedData = () => {
     setUsedData(0);
   };
@@ -49,10 +73,12 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const incrementUsedData = (amount: number) => {
     if (dataSimulationActive) {
       setUsedData(prev => {
-        if (prev < totalData) {
-          return prev + amount;
+        const newUsed = prev + amount;
+        if (newUsed >= totalData) {
+          toast.error("Data limit reached!");
+          return totalData;
         }
-        return prev;
+        return newUsed;
       });
     }
   };
@@ -65,6 +91,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         totalData,
         usedData,
         dataActivationTime,
+        userData,
         setHasMobileData,
         setDataSimulationActive,
         setTotalData,

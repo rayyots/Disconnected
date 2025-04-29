@@ -10,6 +10,7 @@ import RideHeader from "@/components/ride/RideHeader";
 import SearchingRide from "@/components/ride/SearchingRide";
 import RideInProgress from "@/components/ride/RideInProgress";
 import { useData } from "@/context/DataContext";
+import { completeRide } from "@/services/api";
 
 const RidePage = () => {
   const location = useLocation();
@@ -119,9 +120,31 @@ const RidePage = () => {
     }
   }, [status, dataSimulationActive, incrementUsedData, usedData, totalData, dataStopped]);
   
-  const handleConfirmPayment = () => {
-    toast.success("Payment successful!");
-    navigate('/home');
+  const handleConfirmPayment = async () => {
+    try {
+      // Get phone number from local storage
+      const phoneNumber = localStorage.getItem('phoneNumber');
+      
+      if (phoneNumber) {
+        // Add timestamp to the ride
+        const rideWithTimestamp = {
+          ...ride,
+          date: new Date().toISOString()
+        };
+        
+        // Save the ride to the backend
+        await completeRide(phoneNumber, rideWithTimestamp);
+        toast.success("Ride completed and saved to history!");
+      }
+      
+      // Redirect to history page to see the completed ride immediately
+      navigate('/history');
+    } catch (error) {
+      console.error('Error saving ride:', error);
+      toast.error('Failed to save ride history');
+      // Still navigate to history in case of error
+      navigate('/history');
+    }
   };
   
   // Calculate ride data for summary

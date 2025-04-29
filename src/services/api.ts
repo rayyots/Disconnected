@@ -11,6 +11,17 @@ interface ApiResponse<T> {
   error?: string;
 }
 
+// User interface for proper typing
+export interface User {
+  id: string;
+  phoneNumber: string;
+  email?: string;
+  username?: string;
+  dataBalance: number;
+  rides: any[];
+  hasOwnData: boolean;
+}
+
 // Function to handle API requests
 async function apiRequest<T>(
   endpoint: string, 
@@ -62,8 +73,13 @@ async function apiRequest<T>(
 }
 
 // Auth APIs
-export async function verifyPhone(phoneNumber: string, code: string) {
-  return apiRequest('/auth/verify', 'POST', { phoneNumber, code });
+export async function verifyPhone(phoneNumber: string, code: string): Promise<ApiResponse<{user: User}>> {
+  const response = await apiRequest<{user: User}>('/auth/verify', 'POST', { phoneNumber, code });
+  if (response.success && response.data?.user) {
+    // Store the phone number in localStorage for future use
+    localStorage.setItem('phoneNumber', phoneNumber);
+  }
+  return response;
 }
 
 // User APIs
@@ -77,24 +93,31 @@ export async function completeRide(phoneNumber: string, ride: any) {
 }
 
 // Get ride history with proper typing
-interface RideHistoryResponse {
-  rides: Array<{
-    id: string;
-    pickupLocation: string;
-    dropoffLocation: string;
-    distance: number;
-    duration: number;
-    baseFare: number;
-    dataUsed: number;
-    dataCost: number;
-    totalCost: number;
-    paymentMethod: string;
-    date: string;
-  }>;
+export interface RideHistoryItem {
+  id: string;
+  pickupLocation: string;
+  dropoffLocation: string;
+  distance: number;
+  duration: number;
+  baseFare: number;
+  dataUsed: number;
+  dataCost: number;
+  totalCost: number;
+  paymentMethod: string;
+  date: string;
+}
+
+export interface RideHistoryResponse {
+  rides: RideHistoryItem[];
 }
 
 export async function getRideHistory(phoneNumber: string) {
   return apiRequest<RideHistoryResponse>('/rides/history', 'GET', { phoneNumber });
+}
+
+// Get user data
+export async function getUserData(phoneNumber: string) {
+  return apiRequest<{user: User}>('/users/data', 'GET', { phoneNumber });
 }
 
 // Note: In a real application, we would add proper error handling,
