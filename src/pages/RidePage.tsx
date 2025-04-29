@@ -9,14 +9,22 @@ import RideSummary from "@/components/ride/RideSummary";
 import RideHeader from "@/components/ride/RideHeader";
 import SearchingRide from "@/components/ride/SearchingRide";
 import RideInProgress from "@/components/ride/RideInProgress";
+import { useData } from "@/context/DataContext";
 
 const RidePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { pickup, dropoff, paymentMethod, totalData, usedData: initialUsedData } = location.state || {};
+  const { pickup, dropoff, paymentMethod } = location.state || {};
+  
+  const { 
+    hasMobileData,
+    dataSimulationActive, 
+    totalData, 
+    usedData, 
+    incrementUsedData 
+  } = useData();
   
   const [status, setStatus] = useState<'searching' | 'matched' | 'arriving' | 'inProgress' | 'completed'>('searching');
-  const [usedData, setUsedData] = useState(initialUsedData || 0);
   const [dataUsedDuringRide, setDataUsedDuringRide] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   
@@ -27,19 +35,6 @@ const RidePage = () => {
     rating: 4.8,
     carModel: "Nissan Sunny",
     licensePlate: "ا ج ط 481",
-  };
-  
-  // Mock ride data
-  const ride = {
-    pickupLocation: pickup || "123 Main St",
-    dropoffLocation: dropoff || "456 Market St",
-    distance: 5.3,
-    duration: 15,
-    baseFare: 25,
-    dataUsed: dataUsedDuringRide,
-    dataCost: dataUsedDuringRide, 
-    totalCost: 25 + (dataUsedDuringRide * 0.1),
-    paymentMethod: paymentMethod || 'cash',
   };
   
   // Simulate finding a driver
@@ -101,21 +96,34 @@ const RidePage = () => {
     }
   }, [status]);
   
-  // Simulate data usage during ride
+  // Simulate data usage during ride only if simulation is active
   useEffect(() => {
-    if (status === 'inProgress') {
+    if (status === 'inProgress' && dataSimulationActive) {
       const interval = setInterval(() => {
-        setUsedData(prev => prev + 0.2);
+        incrementUsedData(0.2);
         setDataUsedDuringRide(prev => prev + 0.8);
       }, 5000); // Use 0.8 MB every 5 seconds during ride
       
       return () => clearInterval(interval);
     }
-  }, [status]);
+  }, [status, dataSimulationActive, incrementUsedData]);
   
   const handleConfirmPayment = () => {
     toast.success("Payment successful!");
     navigate('/home');
+  };
+  
+  // Calculate ride data for summary
+  const ride = {
+    pickupLocation: pickup || "123 Main St",
+    dropoffLocation: dropoff || "456 Market St",
+    distance: 5.3,
+    duration: 15,
+    baseFare: 25,
+    dataUsed: dataUsedDuringRide,
+    dataCost: dataUsedDuringRide * 0.1,
+    totalCost: 25 + (dataSimulationActive ? dataUsedDuringRide * 0.1 : 0),
+    paymentMethod: paymentMethod || 'cash',
   };
   
   return (
@@ -126,7 +134,7 @@ const RidePage = () => {
       <main className="flex-1 overflow-auto p-4 space-y-4">
         <MapPlaceholder />
         
-        {status !== 'completed' && (
+        {status !== 'completed' && (!hasMobileData || dataSimulationActive) && (
           <DataUsageIndicator 
             totalData={totalData} 
             usedData={usedData} 
@@ -145,7 +153,7 @@ const RidePage = () => {
         {status === 'inProgress' && (
           <RideInProgress 
             elapsedTime={elapsedTime}
-            dataUsedDuringRide={dataUsedDuringRide}
+            dataUsedDuringRide={dataSimulationActive ? dataUsedDuringRide : 0}
             dropoffLocation={ride.dropoffLocation}
             driver={driver}
           />
@@ -155,9 +163,9 @@ const RidePage = () => {
           <RideSummary 
             ride={{
               ...ride,
-              dataUsed: dataUsedDuringRide,
-              dataCost: dataUsedDuringRide * 0.1,
-              totalCost: ride.baseFare + (dataUsedDuringRide * 0.1)
+              dataUsed: dataSimulationActive ? dataUsedDuringRide : 0,
+              dataCost: dataSimulationActive ? dataUsedDuringRide * 0.1 : 0,
+              totalCost: ride.baseFare + (dataSimulationActive ? dataUsedDuringRide * 0.1 : 0)
             }} 
             onConfirm={handleConfirmPayment} 
           />

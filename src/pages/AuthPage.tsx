@@ -21,7 +21,8 @@ const AuthPage = () => {
   const handleVerification = () => {
     // In a real app, we would store authentication tokens here
     toast.success("Successfully logged in!");
-    navigate('/home');
+    // Redirect to data selection page instead of home page
+    navigate('/data-selection');
   };
 
   return (
