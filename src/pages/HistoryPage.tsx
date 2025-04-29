@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { History, Clock, MapPin, Wifi } from "lucide-react";
 import BottomNavBar from "@/components/BottomNavBar";
@@ -41,7 +40,9 @@ const HistoryPage = () => {
 
         const response = await getRideHistory(phoneNumber);
         if (response.success && response.data) {
-          setRideHistory(response.data.rides || []);
+          // Fix the type error by properly casting the data
+          const rides = response.data.rides as RideHistoryItem[];
+          setRideHistory(rides || []);
         }
       } catch (error) {
         console.error('Error fetching ride history:', error);

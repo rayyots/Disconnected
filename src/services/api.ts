@@ -17,15 +17,28 @@ async function apiRequest<T>(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
   data?: any
 ): Promise<ApiResponse<T>> {
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: data ? JSON.stringify(data) : undefined,
-    });
+  const options: RequestInit = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  };
+  
+  // For GET requests with query parameters
+  let url = `${API_BASE_URL}${endpoint}`;
+  if (method === 'GET' && data) {
+    const params = new URLSearchParams();
+    for (const key in data) {
+      params.append(key, data[key]);
+    }
+    url += `?${params.toString()}`;
+  } else if (data) {
+    // For non-GET requests, add data to body
+    options.body = JSON.stringify(data);
+  }
 
+  try {
+    const response = await fetch(url, options);
     const result = await response.json();
 
     if (!response.ok) {
@@ -63,9 +76,25 @@ export async function completeRide(phoneNumber: string, ride: any) {
   return apiRequest('/rides/complete', 'POST', { phoneNumber, ride });
 }
 
-// New function to get ride history
+// Get ride history with proper typing
+interface RideHistoryResponse {
+  rides: Array<{
+    id: string;
+    pickupLocation: string;
+    dropoffLocation: string;
+    distance: number;
+    duration: number;
+    baseFare: number;
+    dataUsed: number;
+    dataCost: number;
+    totalCost: number;
+    paymentMethod: string;
+    date: string;
+  }>;
+}
+
 export async function getRideHistory(phoneNumber: string) {
-  return apiRequest('/rides/history', 'GET', { phoneNumber });
+  return apiRequest<RideHistoryResponse>('/rides/history', 'GET', { phoneNumber });
 }
 
 // Note: In a real application, we would add proper error handling,
