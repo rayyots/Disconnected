@@ -13,19 +13,11 @@ import HistoryPage from "./pages/HistoryPage";
 import SavedPage from "./pages/SavedPage";
 import RidePage from "./pages/RidePage";
 import ProfilePage from "./pages/ProfilePage";
-import ProfileEditPage from "./pages/ProfileEditPage";
 import NotFound from "./pages/NotFound";
 import { DataProvider } from "./context/DataContext";
 
 // Create a new query client instance
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 const App = () => {
   return (
@@ -42,7 +34,6 @@ const App = () => {
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/saved" element={<SavedPage />} />
               <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/profile/edit" element={<ProfileEditPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </DataProvider>
