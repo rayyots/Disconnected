@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,26 +9,64 @@ import { ArrowLeft, Settings, LogOut, CreditCard, Bell, HelpCircle, Calendar, Sh
 import { toast } from "sonner";
 import DataUsageIndicator from "@/components/DataUsageIndicator";
 import BottomNavBar from "@/components/BottomNavBar";
+import { getUserData } from "@/services/api";
+import { useData } from "@/context/DataContext";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const [totalData, setTotalData] = useState(500);
-  const [usedData, setUsedData] = useState(0);
+  const { userData, totalData, usedData } = useData();
+  const [loading, setLoading] = useState(true);
+  
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      setLoading(true);
+      const phoneNumber = localStorage.getItem('phoneNumber');
+      if (!phoneNumber) {
+        toast.error("User not logged in");
+        navigate('/auth');
+        return;
+      }
+      
+      try {
+        await getUserData(phoneNumber);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        toast.error("Failed to load user profile");
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [navigate]);
   
   const handleBack = () => {
     navigate(-1);
   };
   
   const handleLogout = () => {
+    localStorage.removeItem('phoneNumber');
     toast.success("Logged out successfully");
     navigate('/');
+  };
+  
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!userData || !userData.username) return "U";
+    
+    const nameParts = userData.username.split(' ');
+    if (nameParts.length >= 2) {
+      return `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase();
+    }
+    return nameParts[0][0].toUpperCase();
   };
   
   const profileSections = [
     {
       title: 'Account',
       items: [
-        { icon: User, label: 'Personal Information', action: () => toast.info("Coming soon") },
+        { icon: User, label: 'Personal Information', action: () => navigate('/profile/edit') },
         { icon: CreditCard, label: 'Payment Methods', action: () => toast.info("Coming soon") },
         { icon: MapPin, label: 'Saved Places', action: () => navigate('/saved') },
       ]
@@ -49,6 +87,14 @@ const ProfilePage = () => {
       ]
     }
   ];
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-disconnected-dark">
+        <p className="text-white">Loading profile...</p>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen flex flex-col bg-disconnected-dark pb-16">
@@ -74,11 +120,11 @@ const ProfilePage = () => {
               <div className="flex items-center space-x-4">
                 <Avatar className="h-16 w-16 border-2 border-white">
                   <AvatarImage src="" alt="Profile" />
-                  <AvatarFallback className="bg-disconnected-dark/50 text-white text-xl">OR</AvatarFallback>
+                  <AvatarFallback className="bg-disconnected-dark/50 text-white text-xl">{getUserInitials()}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h2 className="text-xl font-bold text-white">Omar Rayyan</h2>
-                  <p className="text-white/80">OmarRayyan@gmail.com</p>
+                  <h2 className="text-xl font-bold text-white">{userData?.username || "New User"}</h2>
+                  <p className="text-white/80">{userData?.email || "No email provided"}</p>
                   <div className="flex items-center mt-1">
                     <p className="text-xs bg-white/20 px-2 py-0.5 rounded-full text-white">⭐ 4.94 Rating</p>
                     <span className="mx-2 text-white/50">•</span>

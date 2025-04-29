@@ -5,6 +5,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -80,9 +81,9 @@ app.post('/api/auth/verify', (req, res) => {
     users[phoneNumber] = {
       id: `user-${Date.now()}`,
       phoneNumber,
-      username: "New User",
+      username: "",
       email: "",
-      dataBalance: 500,
+      dataBalance: 500, // Default data balance for new users
       rides: [],
       hasOwnData: false
     };
@@ -112,20 +113,43 @@ app.post('/api/users/data-preference', (req, res) => {
   }
 });
 
+// New endpoint to update user profile
+app.post('/api/users/profile', (req, res) => {
+  const { phoneNumber, username, email } = req.body;
+  
+  if (users[phoneNumber]) {
+    // Update user details
+    if (username) users[phoneNumber].username = username;
+    if (email) users[phoneNumber].email = email;
+    
+    res.json({
+      success: true,
+      user: users[phoneNumber]
+    });
+  } else {
+    res.status(404).json({
+      success: false,
+      error: 'User not found'
+    });
+  }
+});
+
 app.post('/api/rides/complete', (req, res) => {
   const { phoneNumber, ride } = req.body;
   
   if (users[phoneNumber]) {
     // Add ride to user history
-    users[phoneNumber].rides.push({
+    const newRide = {
       ...ride,
       id: `ride-${Date.now()}`,
       date: new Date().toISOString()
-    });
+    };
+    
+    users[phoneNumber].rides.push(newRide);
     
     // Deduct data from balance if user doesn't have own data
-    if (!users[phoneNumber].hasOwnData) {
-      users[phoneNumber].dataBalance -= ride.dataUsed || 0;
+    if (!users[phoneNumber].hasOwnData && ride.dataUsed) {
+      users[phoneNumber].dataBalance -= ride.dataUsed;
       if (users[phoneNumber].dataBalance < 0) {
         users[phoneNumber].dataBalance = 0;
       }
@@ -176,6 +200,15 @@ app.get('/api/users/data', (req, res) => {
     });
   }
 });
+
+// Serve static files if in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('build'));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+  });
+}
 
 // Start server
 app.listen(PORT, () => {

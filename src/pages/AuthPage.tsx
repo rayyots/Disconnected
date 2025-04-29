@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -6,11 +5,14 @@ import Logo from "@/components/Logo";
 import PhoneLoginForm from "@/components/auth/PhoneLoginForm";
 import OtpVerificationForm from "@/components/auth/OtpVerificationForm";
 import { toast } from "sonner";
+import { verifyPhone } from "@/services/api";
+import { useData } from "@/context/DataContext";
 
 const AuthPage = () => {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phoneNumber, setPhoneNumber] = useState('');
   const navigate = useNavigate();
+  const { setUserData } = useData();
 
   const handlePhoneSubmit = (phone: string) => {
     setPhoneNumber(phone);
@@ -18,11 +20,30 @@ const AuthPage = () => {
     toast.success("Verification code sent!");
   };
 
-  const handleVerification = () => {
-    // In a real app, we would store authentication tokens here
-    toast.success("Successfully logged in!");
-    // Redirect to data selection page instead of home page
-    navigate('/data-selection');
+  const handleVerification = async () => {
+    try {
+      // In a real app, we would verify the OTP here
+      const response = await verifyPhone(phoneNumber, "123456");
+      
+      if (response.success && response.data?.user) {
+        setUserData(response.data.user);
+        toast.success("Successfully logged in!");
+        
+        // Check if it's a new user (no username) or existing user
+        if (!response.data.user.username) {
+          // New user - redirect to profile edit page
+          navigate('/profile/edit');
+        } else {
+          // Existing user - redirect to data selection page
+          navigate('/data-selection');
+        }
+      } else {
+        toast.error("Verification failed. Please try again.");
+      }
+    } catch (error) {
+      console.error('Error during verification:', error);
+      toast.error("An error occurred during verification");
+    }
   };
 
   return (

@@ -87,6 +87,16 @@ export async function setDataPreference(phoneNumber: string, hasOwnData: boolean
   return apiRequest('/users/data-preference', 'POST', { phoneNumber, hasOwnData });
 }
 
+export async function updateUserProfile(phoneNumber: string, userData: {
+  username?: string;
+  email?: string;
+}) {
+  return apiRequest<{user: User}>('/users/profile', 'POST', { 
+    phoneNumber,
+    ...userData
+  });
+}
+
 // Ride APIs
 export async function completeRide(phoneNumber: string, ride: any) {
   return apiRequest('/rides/complete', 'POST', { phoneNumber, ride });

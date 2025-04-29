@@ -17,6 +17,7 @@ interface DataContextType {
   setUsedData: (value: number) => void;
   resetUsedData: () => void;
   incrementUsedData: (amount: number) => void;
+  setUserData: (user: User | null) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -97,7 +98,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         setTotalData,
         setUsedData,
         resetUsedData,
-        incrementUsedData
+        incrementUsedData,
+        setUserData
       }}
     >
       {children}
