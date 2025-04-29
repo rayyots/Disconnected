@@ -15,48 +15,12 @@ app.use(bodyParser.json());
 
 // Mock database with demo users
 const users = {
-  "12345678901": {
+  "01118692839": {
     id: "user-001",
-    phoneNumber: "12345678901",
-    username: "John Doe",
-    email: "john@example.com",
+    phoneNumber: "01118692839",
+    username: "Omar Rayyan",
+    email: "Rayyan@example.com",
     dataBalance: 500,
-    rides: [],
-    hasOwnData: false
-  },
-  "12345678902": {
-    id: "user-002",
-    phoneNumber: "12345678902",
-    username: "Jane Smith", 
-    email: "jane@example.com",
-    dataBalance: 750,
-    rides: [],
-    hasOwnData: false
-  },
-  "12345678903": {
-    id: "user-003",
-    phoneNumber: "12345678903",
-    username: "Alex Johnson",
-    email: "alex@example.com",
-    dataBalance: 600,
-    rides: [],
-    hasOwnData: false
-  },
-  "12345678904": {
-    id: "user-004",
-    phoneNumber: "12345678904",
-    username: "Sarah Williams",
-    email: "sarah@example.com",
-    dataBalance: 800,
-    rides: [],
-    hasOwnData: true
-  },
-  "12345678905": {
-    id: "user-005",
-    phoneNumber: "12345678905",
-    username: "Michael Brown",
-    email: "michael@example.com",
-    dataBalance: 450,
     rides: [],
     hasOwnData: false
   }

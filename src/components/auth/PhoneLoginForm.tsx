@@ -12,11 +12,7 @@ interface PhoneLoginFormProps {
 
 // Demo users for quick access
 const demoUsers = [
-  { name: "John Doe", phone: "12345678901", email: "john@example.com" },
-  { name: "Jane Smith", phone: "12345678902", email: "jane@example.com" },
-  { name: "Alex Johnson", phone: "12345678903", email: "alex@example.com" },
-  { name: "Sarah Williams", phone: "12345678904", email: "sarah@example.com" },
-  { name: "Michael Brown", phone: "12345678905", email: "michael@example.com" }
+  { name: "Omar Rayyan", phone: "01118692839", email: "Rayyan@example.com" },
 ];
 
 const PhoneLoginForm = ({ onSubmit }: PhoneLoginFormProps) => {
