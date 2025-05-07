@@ -1,119 +1,67 @@
+
+// This file contains functions to interact with our backend API
+
+// Base URL for our API (would be different in production)
 const API_BASE_URL = 'http://localhost:5000/api';
 
+// Interface for API responses
 interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
 }
 
-export interface User {
-  id: string;
-  phoneNumber: string;
-  email?: string;
-  username?: string;
-  dataBalance: number;
-  hasOwnData: boolean;
-  savedAddresses: SavedAddress[];
-}
-
-export interface SavedAddress {
-  _id: string;
-  label: string;
-  address: string;
-  type: 'home' | 'work' | 'other';
-}
-
-export interface RideHistoryItem {
-  _id: string;
-  pickupLocation: string;
-  dropoffLocation: string;
-  distance: number;
-  duration: number;
-  baseFare: number;
-  dataUsed: number;
-  dataCost: number;
-  totalCost: number;
-  paymentMethod: string;
-  date: string;
-}
-
+// Function to handle API requests
 async function apiRequest<T>(
-  endpoint: string,
+  endpoint: string, 
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
-  data?: Record<string, unknown>
+  data?: any
 ): Promise<ApiResponse<T>> {
-  const token = localStorage.getItem('token');
-  const options: RequestInit = {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      'x-auth-token': token || ''
-    }
-  };
-
-  let url = `${API_BASE_URL}${endpoint}`;
-  
-  if (method === 'GET' && data) {
-    const params = new URLSearchParams();
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        params.append(key, String(value));
-      }
-    });
-    url += `?${params.toString()}`;
-  } else if (data && method !== 'GET') {
-    options.body = JSON.stringify(data);
-  }
-
   try {
-    const response = await fetch(url, options);
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: data ? JSON.stringify(data) : undefined,
+    });
+
     const result = await response.json();
 
     if (!response.ok) {
-      return { 
-        success: false, 
-        error: result.error || 'Something went wrong' 
+      return {
+        success: false,
+        error: result.error || 'Something went wrong'
       };
     }
 
-    return { success: true, data: result };
+    return {
+      success: true,
+      data: result
+    };
   } catch (error) {
     console.error('API request failed:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Network error' 
+    return {
+      success: false,
+      error: 'Network error occurred'
     };
   }
 }
 
 // Auth APIs
-export const authApi = {
-  verifyPhone: (phoneNumber: string) => 
-    apiRequest<{ message: string }>('/auth/verify', 'POST', { phoneNumber }),
-  login: (phoneNumber: string, code: string) =>
-    apiRequest<{ user: User; token: string }>('/auth/login', 'POST', { phoneNumber, code })
-};
+export async function verifyPhone(phoneNumber: string, code: string) {
+  return apiRequest('/auth/verify', 'POST', { phoneNumber, code });
+}
 
 // User APIs
-export const userApi = {
-  get: () => apiRequest<{ user: User }>('/users/data'),
-  updateDataPreference: (hasOwnData: boolean) =>
-    apiRequest<User>('/users/data-preference', 'POST', { hasOwnData }),
-  addresses: {
-    get: () => apiRequest<{ addresses: SavedAddress[] }>('/users/addresses'),
-    create: (address: Omit<SavedAddress, '_id'>) =>
-      apiRequest<{ addresses: SavedAddress[] }>('/users/addresses', 'POST', address),
-    delete: (id: string) =>
-      apiRequest<{ addresses: SavedAddress[] }>(`/users/addresses/${id}`, 'DELETE')
-  }
-};
+export async function setDataPreference(phoneNumber: string, hasOwnData: boolean) {
+  return apiRequest('/users/data-preference', 'POST', { phoneNumber, hasOwnData });
+}
 
 // Ride APIs
-export const rideApi = {
-  complete: (ride: Omit<RideHistoryItem, '_id' | 'date'>) =>
-    apiRequest<RideHistoryItem>('/rides/complete', 'POST', {
-      ...ride,
-      date: new Date().toISOString()
-    }),
-  getHistory: () => apiRequest<{ rides: RideHistoryItem[] }>('/rides/history')
-};
+export async function completeRide(phoneNumber: string, ride: any) {
+  return apiRequest('/rides/complete', 'POST', { phoneNumber, ride });
+}
+
+// Note: In a real application, we would add proper error handling,
+// retry logic, authentication tokens, etc.

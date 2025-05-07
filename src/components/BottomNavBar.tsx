@@ -23,7 +23,10 @@ const BottomNavBar = () => {
     <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center p-2 bg-disconnected-dark/95 backdrop-blur-sm border-t border-border">
       {navItems.map((item) => {
         const Icon = item.icon;
-        const isActive = location.pathname === item.path;
+        const isActive = location.pathname === item.path || 
+                         (location.pathname === '/home' && item.path === '/home') ||
+                         (location.pathname === '/history' && item.path === '/history') ||
+                         (location.pathname === '/saved' && item.path === '/saved');
         
         return (
           <button

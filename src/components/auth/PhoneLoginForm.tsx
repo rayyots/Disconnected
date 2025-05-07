@@ -4,16 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PhoneLoginFormProps {
   onSubmit: (phoneNumber: string) => void;
 }
-
-// Demo users for quick access
-const demoUsers = [
-  { name: "Omar Rayyan", phone: "01118692839", email: "Rayyan@example.com" },
-];
 
 const PhoneLoginForm = ({ onSubmit }: PhoneLoginFormProps) => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -34,18 +28,11 @@ const PhoneLoginForm = ({ onSubmit }: PhoneLoginFormProps) => {
     
     setIsLoading(true);
     
-    // Save the phone number to localStorage
-    localStorage.setItem('phoneNumber', phoneNumber);
-    
     // Simulate API call
     setTimeout(() => {
       onSubmit(phoneNumber);
       setIsLoading(false);
     }, 1500);
-  };
-
-  const selectDemoUser = (phone: string) => {
-    setPhoneNumber(phone);
   };
 
   return (
@@ -62,26 +49,6 @@ const PhoneLoginForm = ({ onSubmit }: PhoneLoginFormProps) => {
           required
         />
       </div>
-
-      <div className="space-y-2">
-        <Label>Demo Users</Label>
-        <Select onValueChange={selectDemoUser}>
-          <SelectTrigger className="bg-muted">
-            <SelectValue placeholder="Select a demo user" />
-          </SelectTrigger>
-          <SelectContent>
-            {demoUsers.map((user) => (
-              <SelectItem key={user.phone} value={user.phone}>
-                {user.name} ({user.phone})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <p className="text-xs text-muted-foreground">
-          Select a demo user or enter your own phone number
-        </p>
-      </div>
-      
       <Button 
         type="submit" 
         className="w-full bg-disconnected-light text-disconnected-dark hover:bg-disconnected-light/90"

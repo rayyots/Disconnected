@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { verifyPhone } from "@/services/api";
 
 interface OtpVerificationFormProps {
   phoneNumber: string;
@@ -25,7 +24,7 @@ const OtpVerificationForm = ({ phoneNumber, onVerify, onChangeNumber }: OtpVerif
     return `${first3}-${middle3}-${last4}`;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!otp || otp.length < 4) {
@@ -39,33 +38,11 @@ const OtpVerificationForm = ({ phoneNumber, onVerify, onChangeNumber }: OtpVerif
     
     setIsLoading(true);
     
-    try {
-      // For demo purposes, we'll accept any OTP code
-      const response = await verifyPhone(phoneNumber, otp);
-      
-      if (response.success) {
-        // Verification successful
-        toast({
-          title: "Verification Successful",
-          description: "You have been logged in successfully",
-        });
-        onVerify();
-      } else {
-        toast({
-          title: "Verification Failed",
-          description: response.error || "Please try again",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An error occurred during verification",
-        variant: "destructive",
-      });
-    } finally {
+    // For demo, we'll accept any code
+    setTimeout(() => {
+      onVerify();
       setIsLoading(false);
-    }
+    }, 1500);
   };
 
   return (
@@ -98,9 +75,6 @@ const OtpVerificationForm = ({ phoneNumber, onVerify, onChangeNumber }: OtpVerif
           className="bg-muted text-center text-lg tracking-widest"
           required
         />
-        <p className="text-xs text-muted-foreground text-center">
-          For demo purposes, any code will work
-        </p>
       </div>
       
       <Button 

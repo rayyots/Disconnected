@@ -4,7 +4,6 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, CreditCard, Wifi } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { useData } from "@/context/DataContext";
 
 interface RideSummaryProps {
   ride: {
@@ -22,8 +21,6 @@ interface RideSummaryProps {
 }
 
 const RideSummary = ({ ride, onConfirm }: RideSummaryProps) => {
-  const { dataSimulationActive } = useData();
-  
   return (
     <Card className="glass-card animate-fade-in">
       <CardContent className="p-4 pt-6">
@@ -67,15 +64,13 @@ const RideSummary = ({ ride, onConfirm }: RideSummaryProps) => {
               <span className="text-muted-foreground">Ride fare</span>
               <span>EGP {ride.baseFare.toFixed(2)}</span>
             </div>
-            {dataSimulationActive && (
-              <div className="flex justify-between">
-                <div className="flex items-center">
-                  <Wifi className="h-4 w-4 mr-1 text-disconnected-light" />
-                  <span className="text-muted-foreground">Data used ({ride.dataUsed.toFixed(1)} MB)</span>
-                </div>
-                <span>EGP {ride.dataCost.toFixed(2)}</span>
+            <div className="flex justify-between">
+              <div className="flex items-center">
+                <Wifi className="h-4 w-4 mr-1 text-disconnected-light" />
+                <span className="text-muted-foreground">Data used ({ride.dataUsed.toFixed(1)} MB)</span>
               </div>
-            )}
+              <span>EGP {ride.dataCost.toFixed(2)}</span>
+            </div>
           </div>
           
           <div className="flex justify-between font-medium">

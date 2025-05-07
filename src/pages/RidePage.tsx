@@ -10,7 +10,6 @@ import RideHeader from "@/components/ride/RideHeader";
 import SearchingRide from "@/components/ride/SearchingRide";
 import RideInProgress from "@/components/ride/RideInProgress";
 import { useData } from "@/context/DataContext";
-import { completeRide } from "@/services/api";
 
 const RidePage = () => {
   const location = useLocation();
@@ -22,14 +21,12 @@ const RidePage = () => {
     dataSimulationActive, 
     totalData, 
     usedData, 
-    incrementUsedData,
-    setUsedData 
+    incrementUsedData 
   } = useData();
   
   const [status, setStatus] = useState<'searching' | 'matched' | 'arriving' | 'inProgress' | 'completed'>('searching');
   const [dataUsedDuringRide, setDataUsedDuringRide] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [dataStopped, setDataStopped] = useState(false);
   
   // Mock driver data
   const driver = {
@@ -101,50 +98,19 @@ const RidePage = () => {
   
   // Simulate data usage during ride only if simulation is active
   useEffect(() => {
-    if (status === 'inProgress' && dataSimulationActive && !dataStopped) {
+    if (status === 'inProgress' && dataSimulationActive) {
       const interval = setInterval(() => {
-        const dataIncrement = 0.8; // Data usage per interval in MB
-        
-        // Check if adding this increment would exceed the total data
-        if (usedData + dataIncrement > totalData) {
-          toast.error("Data balance depleted! Conserving remaining data.");
-          setDataStopped(true);
-          return;
-        }
-        
         incrementUsedData(0.2);
-        setDataUsedDuringRide(prev => prev + dataIncrement);
+        setDataUsedDuringRide(prev => prev + 0.8);
       }, 5000); // Use 0.8 MB every 5 seconds during ride
       
       return () => clearInterval(interval);
     }
-  }, [status, dataSimulationActive, incrementUsedData, usedData, totalData, dataStopped]);
+  }, [status, dataSimulationActive, incrementUsedData]);
   
-  const handleConfirmPayment = async () => {
-    try {
-      // Get phone number from local storage
-      const phoneNumber = localStorage.getItem('phoneNumber');
-      
-      if (phoneNumber) {
-        // Add timestamp to the ride
-        const rideWithTimestamp = {
-          ...ride,
-          date: new Date().toISOString()
-        };
-        
-        // Save the ride to the backend
-        await completeRide(phoneNumber, rideWithTimestamp);
-        toast.success("Ride completed and saved to history!");
-      }
-      
-      // Redirect to history page to see the completed ride immediately
-      navigate('/history');
-    } catch (error) {
-      console.error('Error saving ride:', error);
-      toast.error('Failed to save ride history');
-      // Still navigate to history in case of error
-      navigate('/history');
-    }
+  const handleConfirmPayment = () => {
+    toast.success("Payment successful!");
+    navigate('/home');
   };
   
   // Calculate ride data for summary
